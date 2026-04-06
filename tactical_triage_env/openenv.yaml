@@ -1,0 +1,40 @@
+spec_version: 1
+name: tactical_triage_env
+version: "1.0.0"
+type: environment
+runtime: docker
+app: server/app.py
+port: 8000
+description: >
+  Emergency 911 Dispatch Triage RL Environment. An AI agent acts as
+  a dispatch coordinator — triaging incoming incidents, assigning
+  limited responder units (ambulance, fire_truck, police_car, hazmat_team),
+  and managing cascading crises in real time. Three tasks with difficulty
+  ranging from single incident handling to full mass casualty events.
+author: "your-name"
+tags:
+  - openenv
+  - dispatch
+  - emergency
+  - real-world
+  - triage
+tasks:
+  - name: single_incident
+    description: >
+      Easy. One incident active at a time. Low-medium severity (1-2).
+      No hazmat. New incident every 4 steps. 20 step episodes.
+    difficulty: easy
+    max_steps: 20
+  - name: multi_incident
+    description: >
+      Medium. 3-5 simultaneous incidents. Mixed severity 1-3.
+      Requires prioritization under unit scarcity. 25 step episodes.
+    difficulty: medium
+    max_steps: 25
+  - name: mass_casualty
+    description: >
+      Hard. Mass casualty event. Multiple critical/high incidents.
+      Scarce units, cascading arrivals. Agent cannot save everyone —
+      must triage ruthlessly. Frontier models score ~0.35-0.55. 30 step episodes.
+    difficulty: hard
+    max_steps: 30
