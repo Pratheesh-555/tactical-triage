@@ -19,22 +19,22 @@ from openenv.core.env_server.types import State
 
 try:
     from tactical_triage_env.models import TacticalAction, TacticalObservation, Incident
-    from server.reward_engine import (
+    from tactical_triage_env.server.reward_engine import (
         reward_assign, reward_close, reward_timeout,
         reward_escalate, reward_wait, reward_invalid, clamp,
         SEVERITY_ASSIGN_REWARD, CLOSE_BASE_BONUS,
     )
-    from server.scenarios import SCENARIO_REGISTRY, ScenarioConfig
-    from server.graders import GRADER_REGISTRY
+    from tactical_triage_env.server.scenarios import SCENARIO_REGISTRY, ScenarioConfig
+    from tactical_triage_env.server.graders import GRADER_REGISTRY
 except ImportError:
     from models import TacticalAction, TacticalObservation, Incident
-    from reward_engine import (
+    from .reward_engine import (
         reward_assign, reward_close, reward_timeout,
         reward_escalate, reward_wait, reward_invalid, clamp,
         SEVERITY_ASSIGN_REWARD, CLOSE_BASE_BONUS,
     )
-    from scenarios import SCENARIO_REGISTRY, ScenarioConfig
-    from graders import GRADER_REGISTRY
+    from .scenarios import SCENARIO_REGISTRY, ScenarioConfig
+    from .graders import GRADER_REGISTRY
 
 DEFAULT_TASK = os.getenv("TACTICAL_TASK", "single_incident")
 
@@ -117,6 +117,13 @@ class TacticalEnvironment(Environment[TacticalAction, TacticalObservation, State
         timeout_s: Optional[float] = None,
         **kwargs: Any,
     ) -> TacticalObservation:
+        # Ensure reset() was called before step()
+        if self._scenario is None:
+            raise RuntimeError(
+                "Environment must be reset() before calling step(). "
+                "Call reset() to initialize a scenario first."
+            )
+        
         step = self._state.step_count + 1
         self._state.step_count = step
         self._history["steps_taken"] = step
@@ -281,6 +288,8 @@ class TacticalEnvironment(Environment[TacticalAction, TacticalObservation, State
         self._busy_units = remaining
 
     def _spawn_scheduled_incidents(self, step: int) -> None:
+        if self._scenario is None:
+            return
         schedule = self._scenario.new_incident_schedule
         if step not in schedule:
             return
