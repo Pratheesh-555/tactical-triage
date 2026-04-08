@@ -24,6 +24,15 @@ app = create_app(
     env_name="tactical_triage_env",
 )
 
+@app.get("/")
+def read_root():
+    return {"status": "ok", "environment": "tactical_triage_env"}
+
+@app.get("/reset")
+def read_reset():
+    return {"status": "ok", "message": "Use POST to reset the environment"}
+
+
 
 def main() -> None:
     uvicorn.run(

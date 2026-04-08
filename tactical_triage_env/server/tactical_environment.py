@@ -28,15 +28,13 @@ try:
     from tactical_triage_env.server.graders import GRADER_REGISTRY
 except ImportError:
     from models import TacticalAction, TacticalObservation, Incident
-    from .reward_engine import (
+    from reward_engine import (
         reward_assign, reward_close, reward_timeout,
         reward_escalate, reward_wait, reward_invalid, clamp,
         SEVERITY_ASSIGN_REWARD, CLOSE_BASE_BONUS,
     )
-    from .scenarios import SCENARIO_REGISTRY, ScenarioConfig
-    from .graders import GRADER_REGISTRY
-
-DEFAULT_TASK = os.getenv("TACTICAL_TASK", "single_incident")
+    from scenarios import SCENARIO_REGISTRY, ScenarioConfig
+    from graders import GRADER_REGISTRY
 
 
 class TacticalEnvironment(Environment[TacticalAction, TacticalObservation, State]):
