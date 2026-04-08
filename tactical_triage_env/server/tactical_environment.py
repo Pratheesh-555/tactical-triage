@@ -36,6 +36,7 @@ except ImportError:
     from scenarios import SCENARIO_REGISTRY, ScenarioConfig
     from graders import GRADER_REGISTRY
 
+DEFAULT_TASK = os.getenv("TACTICAL_TASK", "single_incident")
 
 class TacticalEnvironment(Environment[TacticalAction, TacticalObservation, State]):
 
