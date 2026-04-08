@@ -10,7 +10,6 @@ import sys
 import traceback
 from typing import List, Optional
 
-import openai
 from pydantic import ValidationError
 
 # Adding tactical_triage_env to path if not installed
@@ -24,9 +23,13 @@ except ImportError:
     from models import TacticalAction
 
 # --- Configuration ---
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "")
+from openai import OpenAI
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+# Optional - if you use from_docker_image():
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 ENV_URL = os.getenv("DISPATCH_ENV_URL", "http://localhost:8000")
 
 # --- Logging Helpers ---
@@ -63,7 +66,7 @@ Response Format (JSON only):
 {"action_type": "wait"}
 """
 
-def get_action_from_llm(client: openai.OpenAI, obs_json: dict) -> TacticalAction:
+def get_action_from_llm(client: OpenAI, obs_json: dict) -> TacticalAction:
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
@@ -98,7 +101,7 @@ def action_to_str(action: TacticalAction) -> str:
 
 # --- Episode Runner ---
 async def run_episode(task_name: str):
-    client = openai.OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
     env = TacticalTriageEnv(base_url=ENV_URL)
     
     rewards = []
@@ -112,7 +115,8 @@ async def run_episode(task_name: str):
         async with env:
             # Task name passed as a keyword argument in kwargs
             # openenv reset expects (seed, episode_id, **kwargs)
-            obs = await env.reset(task=task_name)
+            reset_result = await env.reset(task=task_name)
+            obs = reset_result.observation
             
             while True:
                 # Prepare data for LLM
