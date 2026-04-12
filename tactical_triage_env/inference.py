@@ -1,5 +1,5 @@
-"""
-TacticalTriage — Mandatory Inference Script.
+﻿"""
+TacticalTriage â€” Mandatory Inference Script.
 Coordinates RL environment with an LLM agent and logs trajectory.
 """
 
@@ -106,7 +106,7 @@ async def run_episode(task_name: str):
     
     rewards = []
     steps = 0
-    score = 0.0
+    score = 0.001
     success = False
     
     log_start(task_name, MODEL_NAME)
@@ -145,7 +145,7 @@ async def run_episode(task_name: str):
             # For now, use cumulative score or server's internal state if reachable
             # We can use the episode_score from the last observation
             score = obs.episode_score / max(1, steps) 
-            score = max(0.0, min(1.0, score)) # Clamp to [0,1]
+            score = max(0.001, min(0.999, score)) # Clamp to (0,1)
             success = score >= 0.3
             
     except Exception as e:

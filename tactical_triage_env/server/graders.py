@@ -1,4 +1,4 @@
-"""
+﻿"""
 Task graders for Emergency Dispatch Triage.
 All graders are deterministic and reproducible.
 
@@ -27,8 +27,9 @@ def _base_score(history: dict) -> float:
     total = history.get("total_reward", 0.0)
     max_r = history.get("max_possible_reward", 1.0)
     if max_r <= 0:
-        return 0.0
-    return max(0.0, min(1.0, total / max_r))
+        return 0.001
+    score = total / max_r
+    return max(0.001, min(0.999, score))
 
 
 def grade_single_incident(history: dict) -> float:
@@ -46,7 +47,8 @@ def grade_single_incident(history: dict) -> float:
     else:
         assignment_score = history.get("correct_assignments", 0) / total_assignments
 
-    return round(0.70 * reward_score + 0.30 * assignment_score, 4)
+    score = 0.70 * reward_score + 0.30 * assignment_score
+    return round(max(0.001, min(0.999, score)), 4)
 
 
 def grade_multi_incident(history: dict) -> float:
@@ -72,7 +74,7 @@ def grade_multi_incident(history: dict) -> float:
     if timeout_rate > 0.4:
         raw *= (1.0 - (timeout_rate - 0.4))
 
-    return round(max(0.0, min(1.0, raw)), 4)
+    return round(max(0.001, min(0.999, raw)), 4)
 
 
 def grade_mass_casualty(history: dict) -> float:
@@ -103,7 +105,7 @@ def grade_mass_casualty(history: dict) -> float:
         + 0.10 * efficiency
     )
 
-    return round(max(0.0, min(1.0, raw)), 4)
+    return round(max(0.001, min(0.999, raw)), 4)
 
 
 GRADER_REGISTRY: dict[str, callable] = {
